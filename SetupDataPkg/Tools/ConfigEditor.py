@@ -444,7 +444,7 @@ class application(tkinter.Frame):
         search_entry.pack(side=tkinter.LEFT, fill=tkinter.X, expand=True)
         search_entry.bind('<Return>', lambda event: self.search_widget_label())
 
-        search_button = tkinter.Button(top_frame, text="Search", command=self.search_widget_label())
+        search_button = tkinter.Button(top_frame, text="Search", command=self.search_widget_label)
         search_button.pack(side=tkinter.LEFT, padx=5)
 
         clear_button = tkinter.Button(top_frame, text="Clear", command=self.clear_search)
@@ -737,6 +737,27 @@ class application(tkinter.Frame):
                     entry_widget.selection_range(0, len(entry_value))
                     entry_widget.focus_set()
                     focus = True
+
+                    # Scroll to the label widget
+                    self.conf_canvas.update_idletasks()
+                    canvas_region = self.conf_canvas.bbox('all')
+                    self.conf_canvas.config(scrollregion=canvas_region)
+
+                    def get_widget_y_in_canvas(widget, canvas):
+                        y = 0
+                        while widget != canvas and widget is not None:
+                            y += widget.winfo_y()
+                            widget = widget.master
+                        return y
+
+                    label_y = get_widget_y_in_canvas(label_widget, self.conf_canvas)
+
+                    # Get the total height of the scrollable area
+                    total_height = canvas_region[3] - canvas_region[1]
+                    scroll_fraction = label_y / total_height
+                    print(f'scroll_fraction: {scroll_fraction}')
+                    self.conf_canvas.yview_moveto(scroll_fraction)
+
     def set_object_name(self, widget, name, file_id):
         # associate the name of the widget with the file it came from, in case of name conflicts
         self.conf_list[id(widget)] = (name, file_id)
