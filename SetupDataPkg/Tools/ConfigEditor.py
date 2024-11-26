@@ -447,11 +447,9 @@ class application(tkinter.Frame):
         search_button = tkinter.Button(top_frame, text="Search", command=self.search_widget_label)
         search_button.pack(side=tkinter.LEFT, padx=5)
 
-        # Add match counter label
         self.match_label = tkinter.Label(top_frame, text="")
         self.match_label.pack(side=tkinter.LEFT, padx=5)
 
-        # Add up/down arrow buttons for search navigation
         up_button = tkinter.Button(top_frame, text="↑", command=self.search_previous)
         up_button.pack(side=tkinter.LEFT)
 
@@ -643,8 +641,8 @@ class application(tkinter.Frame):
                         self.load_cfg_file(sub_path, idx, False)
 
     def search_widget_label(self):
-        self.current_matches = []  # Store all matching widgets
-        self.current_match_index = -1  # Track current position
+        self.current_matches = []
+        self.current_match_index = -1
 
         def expand_tree_to_page(page_id_list):
             level_3_list = []
@@ -711,7 +709,6 @@ class application(tkinter.Frame):
             highlight_left_tree_label(search_result)
             self.build_config_data_page(search_result[0])
             print(f"'{search_term}' found.")
-
         else:
             print(f"'{search_term}' not found.")
             self.output_current_status(f"search term '{search_term}' not found.")
@@ -733,35 +730,31 @@ class application(tkinter.Frame):
         self.search_active = False
         self.current_matches = []
         self.current_match_index = -1
-        # Clear match counter
         self.match_label.config(text="")
 
     def highlight_label(self):
         search_term = self.search_var.get().lower()
         widget_list = self.right_grid.winfo_children()
-        self.current_matches = []  # Reset matches
+        self.current_matches = []
 
-        # Find all matching widgets and highlight all matching labels
-        for widget in widget_list[2::2]:  # Labels are at even indices
+        for widget in widget_list[2::2]:
             label_text = widget.cget('text').lower()
             if search_term in label_text:
                 self.current_matches.append(widget)
-                widget.configure(background="yellow")  # Highlight all matching labels
+                widget.configure(background="yellow")
 
         if self.current_matches:
-            self.current_match_index = 0  # Start with first match
+            self.current_match_index = 0
             self.highlight_current_entry()
 
     def highlight_current_entry(self):
         if not self.current_matches:
             return
 
-        # Get all entry widgets
         widget_list = self.right_grid.winfo_children()
 
-        # Clear previous entry highlights
-        for widget in widget_list[3::2]:  # Entry widgets are at odd indices
-            if hasattr(widget, 'configure'):  # Check if widget supports configuration
+        for widget in widget_list[3::2]:
+            if hasattr(widget, 'configure'):
                 widget.configure(background=self.cget("background"))
 
         # Highlight only the current entry
@@ -775,21 +768,16 @@ class application(tkinter.Frame):
             entry_widget.selection_range(0, len(entry_value))
             entry_widget.focus_set()
 
-        # Scroll to make current match visible
         self.conf_canvas.update_idletasks()
 
-        # Get the widget's position relative to the canvas
         widget_y = current_widget.winfo_y()
         canvas_height = self.conf_canvas.winfo_height()
 
-        # Calculate the new scroll fraction to position widget near the top
         new_scroll = widget_y / self.right_grid.winfo_height()
 
-        # Clamp scroll value between 0 and 1
         new_scroll = max(0, min(1, new_scroll))
         self.conf_canvas.yview_moveto(new_scroll)
 
-        # Update match counter
         if self.current_matches:
             self.match_label.config(text=f"{self.current_match_index + 1}/{len(self.current_matches)}")
 
